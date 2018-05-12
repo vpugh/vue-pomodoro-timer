@@ -1,15 +1,15 @@
 <template>
-  <div class="container center">
-  <div class="padding-4 width">
+  <div class="container" :class="{'gradient-flip': gradientFlipped }">
+  <div class="width">
     <h2 class="title" v-html="pomodoroStageSelection"></h2>
     <div class="steps">
       <div v-for="(stage,index) in pomodoroStage" :key="stage.id" :class="{ active: activeStage(index) }"></div>
     </div>
     <div id="timer" v-html="time"></div>
     <div class="buttons">
-      <button @click="timerPlay" v-if="!timerRunning" v-html="pauseSwitch">Start <span class="fa fa-play"></span></button>
+      <button @click="timerPlay" v-if="!timerRunning" v-html="pauseSwitch">Start &nbsp;<span class="fa fa-play"></span></button>
       <button @click="timerPause" v-if="timerRunning">Pause <span class="fa fa-pause"></span></button>
-      <button @click="timerReset">Restart <span class="fa fa-redo"></span></button>
+      <button @click="timerReset">Restart &nbsp;<span class="fa fa-redo"></span></button>
     </div>
   </div>
 </div>
@@ -26,7 +26,8 @@ export default {
         interval: null,
         pomodoroStage:
         ['Pomodoro Rd 1','Break','Pomodoro Rd 2','Break','Pomodoro Rd 3','Break','Final Pomodoro','Final Break'],
-        stage: 0
+        stage: 0,
+        gradientFlipped: null
       }
   },
   computed: {
@@ -44,9 +45,9 @@ export default {
     pauseSwitch: function() {
       var paused = this.timerPaused;
       if (paused == false) {
-        return 'Start <span class="fa fa-play"></span>'
+        return 'Start &nbsp;<span class="fa fa-play"></span>'
       } else {
-        return 'Resume <span class="fa fa-play"></span>'
+        return 'Resume &nbsp;<span class="fa fa-play"></span>'
       }
     },
     pomodoroStageSelection: function() {
@@ -55,6 +56,12 @@ export default {
     }
   },
   methods: {
+    playSound (sound) {
+      if(sound) {
+        var audio = new Audio(sound);
+        audio.play();
+      }
+    },
     timerPlay() {
       this.timerRunning = true;
       this.timerPaused = false;
@@ -69,14 +76,12 @@ export default {
       this.timerRunning = false;
       this.timerPaused = false;
       clearInterval(this.interval);
-      // this.totalTime = (25 * 60);
       this.totalTime = (25 * 60);
       this.stage = 0;
     },
     countdownTimer() {
       if (this.totalTime == 0) {
-        var snd = new Audio("https://b3a60a090f344ad19251b31cdaa416c3.production.codepen.plumbing/ride.wav");
-        snd.play();
+        this.playSound("http://soundbible.com/mp3/Elevator Ding-SoundBible.com-685385892.mp3");
         this.timerRunning = false;
         this.timerPaused = false;
         clearInterval(this.interval);
@@ -87,13 +92,14 @@ export default {
     },
     stageStep: function() {
       this.stage++;
-      console.log('Triggered');
       if (this.stage == 8){
         this.timerReset();
       } else if ((this.stage == 2) || (this.stage == 4) || (this.stage == 6)) {
         this.totalTime = (25 * 60);
+        this.gradientFlipped = false;
       } else {
         this.totalTime = (5 * 60);
+        this.gradientFlipped = true;
       }
     },
     activeStage: function (index) {
@@ -106,17 +112,17 @@ export default {
 <style scoped>
 .container {
   width: 100%;
-  background-image: linear-gradient(141deg, #ff6347 0, salmon 71%, #ff6347 100%);
+  background-image: linear-gradient(141deg, #ff6347 0, #ef473a 100%);
   min-height: 100vh;
   color: #ffffff;
-}
-
-.center {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.container.gradient-flip {
+    background-image: linear-gradient(141deg, #ebe7b9 0, #c4d54c 100%);
+}
 .width {
   max-width: 620px;
 }
@@ -127,6 +133,10 @@ export default {
   margin-bottom: 40px;
   color: #ffd9d3;
   text-align: center;
+}
+
+.gradient-flip #timer {
+    color: #f1f3e3;
 }
 
 .title {
@@ -150,9 +160,10 @@ export default {
   box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.2);
 }
 .buttons button:hover {
-  opacity: .75;
-  -webkit-transform: translatey(-3px);
-          transform: translatey(-3px);
+    cursor: pointer;
+    opacity: .75;
+    -webkit-transform: translatey(-3px);
+            transform: translatey(-3px);
 }
 
 .steps {
@@ -163,10 +174,10 @@ export default {
 .steps > div {
   width: 20px;
   height: 20px;
-  background-color: #ddd;
+  background-color: #fff;
   border-radius: 50%;
   margin: auto;
-  opacity: .4;
+  opacity: .2;
 }
 .steps .Pomodoro {
   background: red;
